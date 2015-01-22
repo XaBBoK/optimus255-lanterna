@@ -27,6 +27,7 @@ import com.googlecode.lanterna.gui.component.ActionListBox;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
 /**
@@ -51,29 +52,12 @@ public class ActionListDialog extends Window
         Panel cancelPanel = new Panel(new Invisible(), Panel.Orientation.HORISONTAL);
         cancelPanel.addComponent(new Label("                "));
         cancelPanel.addComponent(new Button("Close", new Action() {
-            public void doAction()
+            public void doAction(Key key)
             {
                 close();
             }
         }));
         addComponent(cancelPanel);
-    }
-
-    private void addAction(final String title, final Action action) {
-        actionListBox.addAction(title, new Action() {
-            @Override
-            public void doAction() {
-                if(closeBeforeAction) {
-                    close();
-                }
-                action.doAction();
-                if(!closeBeforeAction) {
-                    close();
-                }
-            }
-        });
-        actionListBox.setPreferredSize(new TerminalSize(actionListBox.getPreferredSize().getColumns(), 
-                                                        actionListBox.getPreferredSize().getRows() + 1));
     }
 
     /**
@@ -87,7 +71,7 @@ public class ActionListDialog extends Window
         for(Action action: actions)
             if(action.toString().length() > maxLength)
                 maxLength = action.toString().length();
-        
+
         showActionListDialog(owner, title, description, maxLength, actions);
     }
 
@@ -100,7 +84,7 @@ public class ActionListDialog extends Window
     {
         showActionListDialog(owner, title, description, itemWidth, false, actions);
     }
-    
+
     /**
      * Will display a dialog prompting the user to select an action from a list.
      * The label of each action will be the result of calling toString() on each
@@ -119,10 +103,27 @@ public class ActionListDialog extends Window
             showActionListDialog(owner, title, description, actions);
             return;
         }
-        
+
         ActionListDialog actionListDialog = new ActionListDialog(title, description, itemWidth, closeBeforeAction);
         for(Action action: actions)
             actionListDialog.addAction(action.toString(), action);
         owner.showWindow(actionListDialog, GUIScreen.Position.CENTER);
+    }
+
+    private void addAction(final String title, final Action action) {
+        actionListBox.addAction(title, new Action() {
+            @Override
+            public void doAction(Key key) {
+                if (closeBeforeAction) {
+                    close();
+                }
+                action.doAction(key);
+                if (!closeBeforeAction) {
+                    close();
+                }
+            }
+        });
+        actionListBox.setPreferredSize(new TerminalSize(actionListBox.getPreferredSize().getColumns(),
+                actionListBox.getPreferredSize().getRows() + 1));
     }
 }

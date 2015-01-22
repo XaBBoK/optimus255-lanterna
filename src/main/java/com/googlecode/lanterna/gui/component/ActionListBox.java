@@ -60,19 +60,21 @@ public class ActionListBox extends AbstractListBox {
             }
 
             @Override
-            public void doAction() {
-                action.doAction();
+            public void doAction(Key key) {
+                action.doAction(key);
             }
         });
     }
 
     @Override
     protected Result unhandledKeyboardEvent(Key key) {
-        if(key.getKind() == Key.Kind.Enter) {
+        /*if(key.getKind() == Key.Kind.Enter) {
             ((Item)getSelectedItem()).doAction();
             return Result.EVENT_HANDLED;
-        }
-        return Result.EVENT_NOT_HANDLED;
+        }*/
+        ((Item) getSelectedItem()).doAction(key);
+        return Result.EVENT_HANDLED;
+        //return Result.EVENT_NOT_HANDLED;
     }
     
     @Override
@@ -97,6 +99,7 @@ public class ActionListBox extends AbstractListBox {
     
     private static interface Item {
         public String getTitle();
-        public void doAction();
+
+        public void doAction(Key key);
     }
 }

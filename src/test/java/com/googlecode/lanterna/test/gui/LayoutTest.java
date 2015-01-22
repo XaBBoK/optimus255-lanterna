@@ -27,6 +27,7 @@ import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 /**
@@ -44,7 +45,7 @@ public class LayoutTest {
         for (int i = 0; i < 5; i++) {
             actionListBox.addAction("New window " + i, new Action() {
                 @Override
-                public void doAction() {
+                public void doAction(Key key) {
                 }
             });
         }
@@ -54,7 +55,7 @@ public class LayoutTest {
         Panel buttonPanel = new Panel(new Border.Invisible(), Panel.Orientation.HORISONTAL);
         Button exitButton = new Button("Exit", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 window1.close();
             }
         });

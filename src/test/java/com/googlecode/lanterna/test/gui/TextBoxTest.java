@@ -24,6 +24,7 @@ import com.googlecode.lanterna.gui.Border;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.*;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 /**
@@ -50,7 +51,7 @@ public class TextBoxTest
 
         Panel buttonPanel = new Panel(new Border.Invisible(), Panel.Orientation.HORISONTAL);
         Button exitButton = new Button("Exit", new Action() {
-                public void doAction()  {
+            public void doAction(Key key) {
                     window1.close();
                 }
             });

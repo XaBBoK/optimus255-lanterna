@@ -18,15 +18,12 @@
  */
 package com.googlecode.lanterna.test.issue;
 
-import com.googlecode.lanterna.gui.Action;
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.DefaultBackgroundRenderer;
-import com.googlecode.lanterna.gui.GUIScreen;
-import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.*;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.dialog.ListSelectDialog;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 /**
@@ -42,9 +39,9 @@ public class Issue36 {
         final Window mainWindow = new Window("Window");
         Button listDialogButton = new Button("Show ListSelectDialog", new Action() {
             @Override
-            public void doAction() {
-                String selected = ListSelectDialog.<String>showDialog(guiScreen, "Choose a string",
-                        "We are checking the appearance of this dialog", 
+            public void doAction(Key key) {
+                String selected = ListSelectDialog.showDialog(guiScreen, "Choose a string",
+                        "We are checking the appearance of this dialog",
                         "First",
                         "Second",
                         "Third",
@@ -56,7 +53,7 @@ public class Issue36 {
         mainWindow.addComponent(listDialogButton);
         Button exitButton = new Button("Close", new Action() {
             @Override
-            public void doAction()
+            public void doAction(Key key)
             {
                 mainWindow.close();
             }

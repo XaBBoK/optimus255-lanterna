@@ -19,14 +19,10 @@
 
 package com.googlecode.lanterna.gui.dialog;
 
-import com.googlecode.lanterna.gui.component.EmptySpace;
-import com.googlecode.lanterna.gui.component.Label;
-import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.component.Button;
-import com.googlecode.lanterna.gui.component.PasswordBox;
-import com.googlecode.lanterna.gui.component.TextBox;
 import com.googlecode.lanterna.gui.*;
+import com.googlecode.lanterna.gui.component.*;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 
 /**
  *
@@ -60,7 +56,7 @@ public class TextInputDialog extends Window
         Panel okCancelPanel = new Panel(new Border.Invisible(), Panel.Orientation.HORISONTAL);
         Button okButton = new Button("OK", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 result = textBox.getText();
                 close();
             }
@@ -69,7 +65,7 @@ public class TextInputDialog extends Window
         okCancelPanel.addComponent(okButton, LinearLayout.GROWS_HORIZONTALLY);
         Button cancelButton = new Button("Cancel", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 close();
             }
         });

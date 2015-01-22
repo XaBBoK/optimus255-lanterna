@@ -27,6 +27,7 @@ import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.ACS;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,11 +100,6 @@ public abstract class AbstractListBox extends AbstractInteractableComponent {
         return items.size();
     }
 
-    public void setSelectedItem(int index) {
-        selectedIndex = index;
-        invalidate();
-    }
-
     public int getSelectedIndex() {
         return selectedIndex;
     }
@@ -114,6 +110,11 @@ public abstract class AbstractListBox extends AbstractInteractableComponent {
             return null;
         else
             return items.get(selectedIndex);
+    }
+
+    public void setSelectedItem(int index) {
+        selectedIndex = index;
+        invalidate();
     }
 
     @Override
@@ -203,7 +204,7 @@ public abstract class AbstractListBox extends AbstractInteractableComponent {
         try {
             switch(key.getKind()) {
                 case Tab:
-                case ArrowRight:
+                    //case ArrowRight:
                     return Result.NEXT_INTERACTABLE_RIGHT;
 
                 case ReverseTab:

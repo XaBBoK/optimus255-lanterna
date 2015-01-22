@@ -18,16 +18,13 @@
  */
 package com.googlecode.lanterna.test.gui;
 
-import com.googlecode.lanterna.gui.Action;
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.DefaultBackgroundRenderer;
-import com.googlecode.lanterna.gui.GUIScreen;
-import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.*;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.dialog.ListSelectDialog;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.TerminalSize;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
@@ -44,11 +41,11 @@ public class AlignmentTest {
         Panel buttonPanel = new Panel(Panel.Orientation.HORISONTAL);
         Button changeAlignmentButton = new Button("Change alignment", new Action() {
             @Override
-            public void doAction() {
-                Component.Alignment a = ListSelectDialog.<Component.Alignment>showDialog(
-                        guiScreen, 
-                        "Choose alignment", 
-                        "Please choose an alignment for the label above", 
+            public void doAction(Key key) {
+                Component.Alignment a = ListSelectDialog.showDialog(
+                        guiScreen,
+                        "Choose alignment",
+                        "Please choose an alignment for the label above",
                         Component.Alignment.values());
                 if(a != null)
                     label.setAlignment(a);
@@ -57,7 +54,7 @@ public class AlignmentTest {
         changeAlignmentButton.setAlignment(Component.Alignment.RIGHT_CENTER);
         Button exitButton = new Button("Exit", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 mainWindow.close();
             }
         });

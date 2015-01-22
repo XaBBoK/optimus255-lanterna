@@ -18,19 +18,12 @@
  */
 package com.googlecode.lanterna.gui.dialog;
 
-import com.googlecode.lanterna.gui.Action;
-import com.googlecode.lanterna.gui.Border;
-import com.googlecode.lanterna.gui.GUIScreen;
-import com.googlecode.lanterna.gui.Theme;
-import com.googlecode.lanterna.gui.Window;
-import com.googlecode.lanterna.gui.component.ActionListBox;
-import com.googlecode.lanterna.gui.component.Button;
-import com.googlecode.lanterna.gui.component.EmptySpace;
-import com.googlecode.lanterna.gui.component.Label;
-import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.component.TextBox;
+import com.googlecode.lanterna.gui.*;
+import com.googlecode.lanterna.gui.component.*;
 import com.googlecode.lanterna.gui.layout.BorderLayout;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -41,35 +34,16 @@ import java.util.Comparator;
  */
 public class FileDialog extends Window {
 
-    public static File showOpenFileDialog(GUIScreen owner, File directory, String title) {
-        FileDialog dialog = new FileDialog(directory, title, Kind.Open);
-        owner.showWindow(dialog);
-        return dialog.getSelectedFile();
-    }
-    
-    public static File showSaveFileDialog(GUIScreen owner, File directory, String title) {
-        FileDialog dialog = new FileDialog(directory, title, Kind.Save);
-        owner.showWindow(dialog);
-        return dialog.getSelectedFile();
-    }
-    
-    private static enum Kind {
-        Open,
-        Save,
-        ;
-    }
-    
     private final Label labelCurrentDirectory;
     private final TextBox fileText;
     private final ActionListBox dirView;
     private final ActionListBox fileView;
     private File currentDirectory;
     private File selectedFile;
-    
     private FileDialog(File directory, String title, Kind kind) {
         super(title);
         this.selectedFile = null;
-        
+
         Panel panelFileDir = new Panel(Panel.Orientation.HORISONTAL);
         fileView = createFileListBox();
         dirView = createFileListBox();
@@ -77,18 +51,18 @@ public class FileDialog extends Window {
         Panel panelButtons = new Panel(Panel.Orientation.HORISONTAL);
         Button okButton = new Button(kind.name(), new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 selectedFile = new File(currentDirectory, fileText.getText());
                 close();
             }
         });
         Button cancelButton = new Button("Cancel", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 close();
             }
         });
-                
+
         labelCurrentDirectory = new Label();
         addComponent(labelCurrentDirectory, LinearLayout.GROWS_HORIZONTALLY);
         panelFileDir.setLayoutManager(new BorderLayout());
@@ -104,11 +78,23 @@ public class FileDialog extends Window {
         addComponent(panelButtons, LinearLayout.GROWS_HORIZONTALLY);
         reloadViews(directory);
     }
+
+    public static File showOpenFileDialog(GUIScreen owner, File directory, String title) {
+        FileDialog dialog = new FileDialog(directory, title, Kind.Open);
+        owner.showWindow(dialog);
+        return dialog.getSelectedFile();
+    }
+
+    public static File showSaveFileDialog(GUIScreen owner, File directory, String title) {
+        FileDialog dialog = new FileDialog(directory, title, Kind.Save);
+        owner.showWindow(dialog);
+        return dialog.getSelectedFile();
+    }
     
     private void reloadViews(File directory) {
         if(directory == null)
             return;
-        
+
         this.currentDirectory = directory.getAbsoluteFile();
         dirView.clearItems();
         fileView.clearItems();
@@ -122,7 +108,7 @@ public class FileDialog extends Window {
         });
         dirView.addAction("..", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 reloadViews(currentDirectory.getParentFile());
             }
         });
@@ -130,7 +116,7 @@ public class FileDialog extends Window {
             if(entry.isDirectory()) {
                 dirView.addAction(entry.getName(), new Action() {
                     @Override
-                    public void doAction() {
+                    public void doAction(Key key) {
                         reloadViews(entry);
                     }
                 });
@@ -138,7 +124,7 @@ public class FileDialog extends Window {
             else {
                 fileView.addAction(entry.getName(), new Action() {
                     @Override
-                    public void doAction() {
+                    public void doAction(Key key) {
                         fileText.setText(entry.getName());
                         setFocus(fileText);
                     }
@@ -163,5 +149,10 @@ public class FileDialog extends Window {
                 return theme.getDefinition(Theme.Category.TEXTBOX_FOCUSED);
             }
         };
+    }
+
+    private static enum Kind {
+        Open,
+        Save,;
     }
 }

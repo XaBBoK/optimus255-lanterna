@@ -7,6 +7,7 @@ import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Panel;
+import com.googlecode.lanterna.input.Key;
 
 public class Issue98 {
 
@@ -35,7 +36,7 @@ public class Issue98 {
             addComponent(panel);
 
             panel.addComponent(new Button("Exit (inside panel)", new Action() {
-                public void doAction() {
+                public void doAction(Key key) {
                     getOwner().getScreen().stopScreen();
                     System.exit(0);
                 }
@@ -45,7 +46,7 @@ public class Issue98 {
             /*
             //If lines below are uncommented, both buttons will be working
             addComponent(new Button("Exit (outside panel)", new Action() {
-                public void doAction() {
+                public void doAction(Key key) {
                     getOwner().getScreen().stopScreen();
                     System.exit(0);
                 }

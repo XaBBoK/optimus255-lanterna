@@ -20,6 +20,7 @@ package com.googlecode.lanterna.gui.util;
 
 import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.input.Key;
+
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class ShortcutHelper {
             NormalKeyShortcut asShortcutKey = new NormalKeyShortcut(key.getCharacter(), key.isCtrlPressed(), key.isAltPressed());
             synchronized(normalKeysShortcut) {
                 if(normalKeysShortcut.containsKey(asShortcutKey)) {
-                    normalKeysShortcut.get(asShortcutKey).doAction();
+                    normalKeysShortcut.get(asShortcutKey).doAction(key);
                     return true;
                 }
                 return false;
@@ -71,7 +72,7 @@ public class ShortcutHelper {
         else {
             synchronized(specialKeysShortcut) {
                 if(specialKeysShortcut.containsKey(key.getKind())) {
-                    specialKeysShortcut.get(key.getKind()).doAction();
+                    specialKeysShortcut.get(key.getKind()).doAction(key);
                     return true;
                 }
                 return false;

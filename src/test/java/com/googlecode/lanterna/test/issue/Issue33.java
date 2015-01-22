@@ -21,13 +21,11 @@ package com.googlecode.lanterna.test.issue;
 import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
-import com.googlecode.lanterna.gui.component.Button;
-import com.googlecode.lanterna.gui.component.EmptySpace;
-import com.googlecode.lanterna.gui.component.Label;
-import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.component.Table;
+import com.googlecode.lanterna.gui.component.*;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
+
 import java.util.Random;
 
 /**
@@ -55,7 +53,7 @@ public class Issue33 {
         bottomPanel.addComponent(new EmptySpace(), LinearLayout.GROWS_HORIZONTALLY);
         bottomPanel.addComponent(new Button("Close", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 mainWindow.close();
             }
         }));
@@ -69,7 +67,7 @@ public class Issue33 {
                         Thread.sleep(1000);
                         gui.runInEventThread(new Action() {
                             @Override
-                            public void doAction() {
+                            public void doAction(Key key) {
                                 Random random = new Random();
                                 table.addRow(new Label(random.nextDouble() + ""),
                                                 new Label(random.nextBoolean() + ""),

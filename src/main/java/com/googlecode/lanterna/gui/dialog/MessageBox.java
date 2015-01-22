@@ -19,11 +19,15 @@
 
 package com.googlecode.lanterna.gui.dialog;
 
+import com.googlecode.lanterna.gui.Action;
+import com.googlecode.lanterna.gui.Border;
+import com.googlecode.lanterna.gui.GUIScreen;
+import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.component.Button;
-import com.googlecode.lanterna.gui.*;
+import com.googlecode.lanterna.input.Key;
 
 /**
  *
@@ -42,28 +46,28 @@ public class MessageBox extends Window
         addEmptyLine();
 
         Button okButton = new Button("OK", new Action() {
-            public void doAction()
+            public void doAction(Key key)
             {
                 dialogResult = DialogResult.OK;
                 close();
             }
         });
         Button cancelButton = new Button("Cancel", new Action() {
-            public void doAction()
+            public void doAction(Key key)
             {
                 dialogResult = DialogResult.CANCEL;
                 close();
             }
         });
         Button yesButton = new Button("Yes", new Action() {
-            public void doAction()
+            public void doAction(Key key)
             {
                 dialogResult = DialogResult.YES;
                 close();
             }
         });
         Button noButton = new Button("No", new Action() {
-            public void doAction()
+            public void doAction(Key key)
             {
                 dialogResult = DialogResult.NO;
                 close();

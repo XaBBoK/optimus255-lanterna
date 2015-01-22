@@ -27,6 +27,7 @@ import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 /**
@@ -51,7 +52,7 @@ public class MaximizeTest {
         buttonPanel.addComponent(new EmptySpace(), LinearLayout.GROWS_HORIZONTALLY);
         Button button1 = new Button("Exit", new Action() {
             @Override
-            public void doAction()
+            public void doAction(Key key)
             {
                 mainWindow.close();
             }

@@ -9,6 +9,7 @@ package com.googlecode.lanterna.test.gui;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.dialog.FileDialog;
 import com.googlecode.lanterna.test.TestTerminalFactory;
+
 import java.io.File;
 
 /**

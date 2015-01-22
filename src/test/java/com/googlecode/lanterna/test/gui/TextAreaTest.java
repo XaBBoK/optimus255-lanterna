@@ -27,6 +27,7 @@ import com.googlecode.lanterna.gui.component.*;
 import com.googlecode.lanterna.gui.dialog.DialogButtons;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.TerminalSize;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
@@ -52,7 +53,7 @@ public class TextAreaTest {
         final TextBox appendBox = new TextBox("", 30);
         Button appendButton = new Button("Append", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 textArea.appendLine(appendBox.getText());
             }
         });
@@ -65,7 +66,7 @@ public class TextAreaTest {
         final TextBox removeBox = new TextBox("0", 5);
         Button removeButton = new Button("Remove line", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 try {
                     int lineNumber = Integer.parseInt(removeBox.getText());
                     textArea.removeLine(lineNumber);
@@ -77,7 +78,7 @@ public class TextAreaTest {
         });
         Button clearButton = new Button("Clear text", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 textArea.clear();
             }
         });
@@ -91,7 +92,7 @@ public class TextAreaTest {
         Panel lastPanel = new Panel(new Border.Invisible(), Panel.Orientation.HORISONTAL);
         Button exitButton = new Button("Exit", new Action() {            
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 window1.close();
             }
         });

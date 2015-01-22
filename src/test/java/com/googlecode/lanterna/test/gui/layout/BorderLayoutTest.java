@@ -18,11 +18,7 @@
  */
 package com.googlecode.lanterna.test.gui.layout;
 
-import com.googlecode.lanterna.gui.Action;
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.DefaultBackgroundRenderer;
-import com.googlecode.lanterna.gui.GUIScreen;
-import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.gui.*;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Panel;
@@ -30,6 +26,7 @@ import com.googlecode.lanterna.gui.dialog.ActionListDialog;
 import com.googlecode.lanterna.gui.layout.BorderLayout;
 import com.googlecode.lanterna.gui.layout.LayoutParameter;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.TerminalSize;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 import com.googlecode.lanterna.test.gui.MockComponent;
@@ -65,7 +62,7 @@ public class BorderLayoutTest {
         buttonPanel.addComponent(new EmptySpace(), LinearLayout.GROWS_HORIZONTALLY);
         Button toggleButton = new Button("Toggle components", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 ActionListDialog.showActionListDialog(
                         guiScreen,
                         "Toggle component",
@@ -80,7 +77,7 @@ public class BorderLayoutTest {
         buttonPanel.addComponent(toggleButton);
         Button closeButton = new Button("Close", new Action() {
             @Override
-            public void doAction()
+            public void doAction(Key key)
             {
                 mainWindow.close();
             }
@@ -106,7 +103,7 @@ public class BorderLayoutTest {
         }
 
         @Override
-        public void doAction() {
+        public void doAction(Key key) {
             if(panel.containsComponent(component)) {
                 panel.removeComponent(component);
             }

@@ -9,8 +9,8 @@ package com.googlecode.lanterna.test.issue;
 import com.googlecode.lanterna.TerminalFacade;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.swing.SwingTerminal;
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
+
+import javax.swing.*;
 
 /**
  *

@@ -27,6 +27,7 @@ import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.component.RadioCheckBoxList;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 /**
@@ -59,7 +60,7 @@ public class RadioCheckBoxTest
                     catch(InterruptedException e) {}
                     final Integer count = i + 1;
                     guiScreen.runInEventThread(new Action() {
-                        public void doAction()
+                        public void doAction(Key key)
                         {
                             listBox.addItem("Item #" + count.intValue());
                         }
@@ -75,7 +76,7 @@ public class RadioCheckBoxTest
 
         Panel buttonPanel = new Panel(new Border.Invisible(), Panel.Orientation.HORISONTAL);
         Button exitButton = new Button("Exit", new Action() {
-                public void doAction()  {
+            public void doAction(Key key) {
                     window1.close();
                 }
             });

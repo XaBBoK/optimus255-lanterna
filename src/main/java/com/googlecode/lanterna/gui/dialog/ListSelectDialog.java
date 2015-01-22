@@ -21,6 +21,8 @@ package com.googlecode.lanterna.gui.dialog;
 
 import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.GUIScreen;
+import com.googlecode.lanterna.input.Key;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +71,7 @@ public class ListSelectDialog
             final T item = items[i];
             actionItems[i] = new Action() {
                 @Override
-                public void doAction()
+                public void doAction(Key key)
                 {
                     result.add(item);
                 }

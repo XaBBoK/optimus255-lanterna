@@ -20,11 +20,14 @@
 package com.googlecode.lanterna.gui;
 
 
+import com.googlecode.lanterna.input.Key;
+
 /**
  * This class is similar to the ActionListener in AWT, used to setup actions
  * associated with, for example, buttons
  * @author Martin
  */
 public interface Action {
-    public void doAction();
+    public void doAction(Key key);
 }
+

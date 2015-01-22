@@ -20,9 +20,10 @@
 package com.googlecode.lanterna.gui.dialog;
 
 import com.googlecode.lanterna.gui.Action;
+import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.Window;
+import com.googlecode.lanterna.input.Key;
 
 /**
  *
@@ -59,7 +60,7 @@ public class WaitingDialog extends Window
     {
         isClosed = true;
         getOwner().runInEventThread(new Action() {
-            public void doAction()
+            public void doAction(Key key)
             {
                 WaitingDialog.super.close();
             }
@@ -83,7 +84,7 @@ public class WaitingDialog extends Window
                     nextSpin = "-";
                 if(getOwner() != null) {
                     getOwner().runInEventThread(new Action() {
-                        public void doAction()
+                        public void doAction(Key key)
                         {
                             spinLabel.setText(nextSpin);
                         }

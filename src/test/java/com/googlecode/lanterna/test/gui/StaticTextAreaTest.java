@@ -27,6 +27,7 @@ import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.component.TextArea;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 /**
@@ -214,7 +215,7 @@ public class StaticTextAreaTest {
         Button exitButton = new Button("Exit", new Action() {
 
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 window1.close();
             }
         });

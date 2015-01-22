@@ -9,6 +9,8 @@ import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.dialog.WaitingDialog;
+import com.googlecode.lanterna.input.Key;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,7 +38,7 @@ public class Issue82 {
         // Show the waiting popup. For this we can use the event thread (i thought)
         guiScreen.runInEventThread(new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 guiScreen.showWindow(waitingDialog);
             }
         });

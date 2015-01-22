@@ -23,6 +23,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.TerminalSize;
 import com.googlecode.lanterna.terminal.XTerm8bitIndexedColorUtils;
 import com.googlecode.lanterna.test.TestTerminalFactory;
+
 import java.util.Random;
 
 /**

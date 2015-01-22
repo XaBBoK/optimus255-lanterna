@@ -18,14 +18,7 @@
  */
 package com.googlecode.lanterna.test.gui;
 
-import com.googlecode.lanterna.gui.Action;
-import com.googlecode.lanterna.gui.Component;
-import com.googlecode.lanterna.gui.DefaultBackgroundRenderer;
-import com.googlecode.lanterna.gui.GUIScreen;
-import com.googlecode.lanterna.gui.TextGraphics;
-import com.googlecode.lanterna.gui.Theme;
-import com.googlecode.lanterna.gui.Window;
-import com.googlecode.lanterna.gui.component.AbstractComponent;
+import com.googlecode.lanterna.gui.*;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
 import com.googlecode.lanterna.gui.component.Panel;
@@ -34,9 +27,9 @@ import com.googlecode.lanterna.gui.layout.LinearLayout;
 import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.TerminalSize;
 import com.googlecode.lanterna.terminal.text.UnixTerminal;
 import com.googlecode.lanterna.test.TestTerminalFactory;
+
 import java.nio.charset.Charset;
 
 /**
@@ -64,7 +57,7 @@ public class ShortcutTest {
         Panel buttonPanel = new Panel(Panel.Orientation.HORISONTAL);
         Button button1 = new Button("Exit", new Action() {
             @Override
-            public void doAction()
+            public void doAction(Key key)
             {
                 mainWindow.close();
             }
@@ -73,31 +66,31 @@ public class ShortcutTest {
         buttonPanel.addComponent(button1, LinearLayout.GROWS_HORIZONTALLY);
         buttonPanel.addShortcut(Key.Kind.Home, new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 MessageBox.showMessageBox(guiScreen, "Shortcut triggered", "You triggered a shortcut by pressing home!");
             }
         });
         buttonPanel.addShortcut('m', false, false, new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 MessageBox.showMessageBox(guiScreen, "Shortcut triggered", "You triggered a shortcut by pressing 'm'!");
             }
         });
         buttonPanel.addShortcut('c', true, false, new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 MessageBox.showMessageBox(guiScreen, "Shortcut triggered", "You triggered a shortcut by pressing ctrl+c!");
             }
         });
         buttonPanel.addShortcut('v', false, true, new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 MessageBox.showMessageBox(guiScreen, "Shortcut triggered", "You triggered a shortcut by pressing alt+v!");
             }
         });
         buttonPanel.addShortcut('x', true, true, new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 MessageBox.showMessageBox(guiScreen, "Shortcut triggered", "You triggered a shortcut by pressing ctrl+alt+x!");
             }
         });

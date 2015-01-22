@@ -7,16 +7,11 @@ package com.googlecode.lanterna.test.gui;
 import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
-import com.googlecode.lanterna.gui.component.Button;
-import com.googlecode.lanterna.gui.component.CheckBox;
-import com.googlecode.lanterna.gui.component.EmptySpace;
-import com.googlecode.lanterna.gui.component.Label;
-import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.component.ProgressBar;
-import com.googlecode.lanterna.gui.component.Table;
-import com.googlecode.lanterna.gui.component.TextBox;
+import com.googlecode.lanterna.gui.component.*;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
+
 import java.util.Random;
 
 /**
@@ -44,7 +39,7 @@ public class TableTest {
                         new EmptySpace(),
                         new Button("Progress", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 ((ProgressBar)table.getRow(1)[2]).setProgress(new Random().nextDouble());
             }
         }));
@@ -55,7 +50,7 @@ public class TableTest {
         buttonPanel.addComponent(new EmptySpace(1, 1), LinearLayout.MAXIMIZES_HORIZONTALLY);
         Button exitButton = new Button("Exit", new Action() {            
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 window1.close();
             }
         });

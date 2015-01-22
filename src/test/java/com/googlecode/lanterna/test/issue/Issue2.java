@@ -6,6 +6,7 @@ import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.Label;
+import com.googlecode.lanterna.input.Key;
 
 public class Issue2 {
 
@@ -22,7 +23,7 @@ public class Issue2 {
         window.addComponent(new Label("test"));
         window.addComponent(new Button("Close", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 window.close();
             }
         }));

@@ -37,7 +37,10 @@ public class Button extends AbstractInteractableComponent
     private Action onPressEvent;
 
     public Button(String text) {
-        this(text, new Action() { public void doAction() {} });
+        this(text, new Action() {
+            public void doAction(Key key) {
+            }
+        });
     }
 
     public Button(String text, Action onPressEvent) {
@@ -46,7 +49,10 @@ public class Button extends AbstractInteractableComponent
         this.buttonLabel.setStyle(Theme.Category.BUTTON_LABEL_INACTIVE);
 
         if(this.onPressEvent == null)
-            this.onPressEvent = new Action() { public void doAction() {} };
+            this.onPressEvent = new Action() {
+                public void doAction(Key key) {
+                }
+            };
     }
 
     @Override
@@ -84,14 +90,14 @@ public class Button extends AbstractInteractableComponent
         setHotspot(null);
     }
 
-    public void setText(String text)
-    {
-        this.buttonLabel.setText(text);
-    }
-
     public String getText()
     {
         return buttonLabel.getText();
+    }
+
+    public void setText(String text)
+    {
+        this.buttonLabel.setText(text);
     }
 
     @Override
@@ -115,7 +121,7 @@ public class Button extends AbstractInteractableComponent
     {
         switch(key.getKind()) {
             case Enter:
-                onPressEvent.doAction();
+                onPressEvent.doAction(key);
                 return Result.EVENT_HANDLED;
                 
             case ArrowDown:

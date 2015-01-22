@@ -22,14 +22,10 @@ import com.googlecode.lanterna.gui.Action;
 import com.googlecode.lanterna.gui.Component;
 import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
-import com.googlecode.lanterna.gui.component.ActionListBox;
-import com.googlecode.lanterna.gui.component.Button;
-import com.googlecode.lanterna.gui.component.EmptySpace;
-import com.googlecode.lanterna.gui.component.Label;
-import com.googlecode.lanterna.gui.component.Panel;
-import com.googlecode.lanterna.gui.component.TextBox;
+import com.googlecode.lanterna.gui.component.*;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.TerminalSize;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
@@ -52,14 +48,14 @@ public class Issue43 {
         panel.addComponent(textBox, LinearLayout.GROWS_HORIZONTALLY);
         panel.addComponent(new Button("Add", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 if(textBox.getText().trim().length() == 0)
                     return;
                 
                 final String text = textBox.getText().trim();
                 actionListBox.addAction(text, new Action() {
                     @Override
-                    public void doAction() {
+                    public void doAction(Key key) {
                         MessageBox.showMessageBox(guiScreen, "Action selected", "You selected:\n" + text);
                     }
                 });
@@ -70,7 +66,7 @@ public class Issue43 {
         window.addComponent(new EmptySpace());
         Button quitButton = new Button("Exit", new Action() {
             @Override
-            public void doAction() {
+            public void doAction(Key key) {
                 window.close();
             }
         });

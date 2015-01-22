@@ -26,7 +26,9 @@ import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.layout.LinearLayout;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,7 +57,7 @@ public class MultilevelCloseWindow {
             for(final Window window: WINDOWS) {
                 actionListBox.addAction("Close " + window.toString(), new Action() {
                     @Override
-                    public void doAction() {
+                    public void doAction(Key key) {
                         window.close();
                     }
                 });
@@ -66,14 +68,14 @@ public class MultilevelCloseWindow {
             buttonPanel.addComponent(new EmptySpace(), LinearLayout.GROWS_HORIZONTALLY);
             buttonPanel.addComponent(new Button("New window", new Action() {
                 @Override
-                public void doAction() {
+                public void doAction(Key key) {
                     MultiCloseWindow multiCloseWindow = new MultiCloseWindow();
                     getOwner().showWindow(multiCloseWindow);
                 }
             }));
             buttonPanel.addComponent(new Button("Close", new Action() {
                 @Override
-                public void doAction() {
+                public void doAction(Key key) {
                     close();
                 }
             }));

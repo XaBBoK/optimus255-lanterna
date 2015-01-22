@@ -23,6 +23,7 @@ import com.googlecode.lanterna.gui.GUIScreen;
 import com.googlecode.lanterna.gui.Window;
 import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 public class MultiWindowTest {
@@ -39,26 +40,26 @@ public class MultiWindowTest {
             addComponent(new Button("Button with no action"));
             addComponent(new Button("Button with action", new Action() {
                 @Override
-                public void doAction() {
+                public void doAction(Key key) {
                     MessageBox.showMessageBox(getOwner(), "Hello", "You selected the button with an action attached to it!");
                 }
             }));
             addComponent(new Button("MessageBox close", new Action() {
                 @Override
-                public void doAction() {
+                public void doAction(Key key) {
                     MessageBox.showMessageBox(getOwner(), "Information", "When you close this dialog, the owner window will close too");
                     MyWindow.this.close();
                 }
             }));
             addComponent(new Button("New window", new Action() {
                 @Override
-                public void doAction() {
+                public void doAction(Key key) {
                     getOwner().showWindow(new MyWindow());
                 }
             }));
             addComponent(new Button("Close window", new Action() {
                 @Override
-                public void doAction() {
+                public void doAction(Key key) {
                     close();
                 }
             }));

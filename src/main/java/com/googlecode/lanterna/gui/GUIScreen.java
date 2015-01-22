@@ -24,11 +24,8 @@ import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+
+import java.util.*;
 
 /**
  * This is the main class of the GUI system in Lanterna. To setup a GUI, you
@@ -39,9 +36,9 @@ import java.util.Queue;
  */
 public class GUIScreen
 {
+    protected final Queue<Action> actionToRunInEventThread;
     private final Screen screen;
     private final LinkedList<WindowPlacement> windowStack;
-    protected final Queue<Action> actionToRunInEventThread;
     private GUIScreenBackgroundRenderer backgroundRenderer;
     private Theme guiTheme;
     private boolean needsRefresh;
@@ -98,16 +95,16 @@ public class GUIScreen
         needsRefresh = true;
     }
 
+    public GUIScreenBackgroundRenderer getBackgroundRenderer() {
+        return backgroundRenderer;
+    }
+
     public void setBackgroundRenderer(GUIScreenBackgroundRenderer backgroundRenderer) {
         if(backgroundRenderer == null)
             throw new IllegalArgumentException("backgroundRenderer cannot be null");
-        
+
         this.backgroundRenderer = backgroundRenderer;
         needsRefresh = true;
-    }
-
-    public GUIScreenBackgroundRenderer getBackgroundRenderer() {
-        return backgroundRenderer;
     }
 
     /**
@@ -239,7 +236,7 @@ public class GUIScreen
             if(actions != null) {
                 for(Action nextAction: actions) {
                     try {
-                        nextAction.doAction();
+                        nextAction.doAction(new Key(Key.Kind.Enter));
                     }
                     catch(Throwable e) {
                         e.printStackTrace();
@@ -394,6 +391,24 @@ public class GUIScreen
         return eventThread == Thread.currentThread();
     }
 
+    private boolean hasSoloWindowAbove(WindowPlacement windowPlacement) {
+        int index = windowStack.indexOf(windowPlacement);
+        for (int i = index + 1; i < windowStack.size(); i++) {
+            if (windowStack.get(i).window.isSoloWindow())
+                return true;
+        }
+        return false;
+    }
+
+    private boolean hasFullScreenWindowAbove(WindowPlacement windowPlacement) {
+        int index = windowStack.indexOf(windowPlacement);
+        for (int i = index + 1; i < windowStack.size(); i++) {
+            if (windowStack.get(i).positionPolicy == Position.FULL_SCREEN)
+                return true;
+        }
+        return false;
+    }
+    
     /**
      * Where to position a window that is to be put on the screen
      */
@@ -405,7 +420,7 @@ public class GUIScreen
          */
         OVERLAPPING,
         /**
-         * This window will be placed in the top-left corner, any windows 
+         * This window will be placed in the top-left corner, any windows
          * created with overlapping after it will be positioned relative
          */
         NEW_CORNER_WINDOW,
@@ -418,25 +433,6 @@ public class GUIScreen
          */
         FULL_SCREEN,
         ;
-    }
-
-    private boolean hasSoloWindowAbove(WindowPlacement windowPlacement)
-    {
-        int index = windowStack.indexOf(windowPlacement);
-        for(int i = index + 1; i < windowStack.size(); i++) {
-            if(windowStack.get(i).window.isSoloWindow())
-                return true;
-        }
-        return false;
-    }
-    
-    private boolean hasFullScreenWindowAbove(WindowPlacement windowPlacement) {
-        int index = windowStack.indexOf(windowPlacement);
-        for(int i = index + 1; i < windowStack.size(); i++) {
-            if(windowStack.get(i).positionPolicy == Position.FULL_SCREEN)
-                return true;
-        }
-        return false;
     }
 
     private class WindowPlacement

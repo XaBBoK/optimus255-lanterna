@@ -28,6 +28,7 @@ import com.googlecode.lanterna.gui.component.Button;
 import com.googlecode.lanterna.gui.component.EmptySpace;
 import com.googlecode.lanterna.gui.component.Panel;
 import com.googlecode.lanterna.gui.dialog.MessageBox;
+import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.test.TestTerminalFactory;
 
 /**
@@ -53,7 +54,7 @@ public class ActionListTest
 
         Panel buttonPanel = new Panel(new Border.Invisible(), Panel.Orientation.HORISONTAL);
         Button exitButton = new Button("Exit", new Action() {
-                public void doAction()  {
+            public void doAction(Key key) {
                     window1.close();
                 }
             });
@@ -79,7 +80,7 @@ public class ActionListTest
             return "ActionListBox item #" + nr;
         }
 
-        public void doAction() {
+        public void doAction(Key key) {
             MessageBox.showMessageBox(owner, "Action", "Selected " + toString());
         }
     }
