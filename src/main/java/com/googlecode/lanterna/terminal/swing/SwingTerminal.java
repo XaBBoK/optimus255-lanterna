@@ -26,6 +26,8 @@ import com.googlecode.lanterna.terminal.AbstractTerminal;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
 import com.googlecode.lanterna.terminal.XTerm8bitIndexedColorUtils;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
@@ -33,10 +35,6 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 
 /**
  * A Swing-based text terminal emulator
@@ -46,7 +44,7 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
 {    
     private final TerminalRenderer terminalRenderer;
     private final Timer blinkTimer;
-    
+    private final Object resizeMutex;
     private JFrame terminalFrame;
     private TerminalAppearance appearance;
     private TerminalCharacter [][]characterMap;
@@ -59,8 +57,6 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
     private boolean blinkVisible;
     private boolean cursorVisible;
     private Queue<Key> keyQueue;
-    
-    private final Object resizeMutex;
 
     public SwingTerminal()
     {
@@ -118,15 +114,6 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
     public JFrame getJFrame() {
         return terminalFrame;
     }
-    
-    private class BlinkAction implements ActionListener 
-    {
-        public void actionPerformed(ActionEvent e) 
-        {
-            blinkVisible = !blinkVisible;
-            terminalRenderer.repaint();
-        }
-    }
 
     @Override
     public void addInputProfile(KeyMappingProfile profile)
@@ -164,28 +151,25 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
     }
 
     @Override
-    public void applySGR(SGR... options)
-    {
-        for(SGR sgr: options)
-        {
-            if(sgr == SGR.RESET_ALL) {
+    public void applySGR(SGR... options) {
+        for (SGR sgr : options) {
+            if (sgr == SGR.RESET_ALL) {
                 currentlyBold = false;
                 currentlyBlinking = false;
                 currentlyUnderlined = false;
                 currentForegroundColor = new CharacterANSIColor(Color.DEFAULT);
                 currentBackgroundColor = new CharacterANSIColor(Color.BLACK);
-            }
-            else if(sgr == SGR.ENTER_BOLD)
+            } else if (sgr == SGR.ENTER_BOLD)
                 currentlyBold = true;
-            else if(sgr == SGR.EXIT_BOLD)
+            else if (sgr == SGR.EXIT_BOLD)
                 currentlyBold = false;
-            else if(sgr == SGR.ENTER_BLINK)
+            else if (sgr == SGR.ENTER_BLINK)
                 currentlyBlinking = true;
-            else if(sgr == SGR.EXIT_BLINK)
+            else if (sgr == SGR.EXIT_BLINK)
                 currentlyBlinking = false;
-            else if(sgr == SGR.ENTER_UNDERLINE)
+            else if (sgr == SGR.ENTER_UNDERLINE)
                 currentlyUnderlined = true;
-            else if(sgr == SGR.EXIT_UNDERLINE)
+            else if (sgr == SGR.EXIT_UNDERLINE)
                 currentlyUnderlined = false;
         }
     }
@@ -193,17 +177,17 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
     @Override
     public void clearScreen()
     {
-        synchronized(resizeMutex) {
-            for(int y = 0; y < size().getRows(); y++)
-                for(int x = 0; x < size().getColumns(); x++)
+        synchronized (resizeMutex) {
+            for (int y = 0; y < size().getRows(); y++)
+                for (int x = 0; x < size().getColumns(); x++)
                     this.characterMap[y][x] = new TerminalCharacter(
-                            ' ', 
+                            ' ',
                             new CharacterANSIColor(Color.DEFAULT),
                             new CharacterANSIColor(Color.BLACK),
-                            false, 
-                            false, 
+                            false,
+                            false,
                             false);
-            moveCursor(0,0);
+            moveCursor(0, 0);
         }
     }
 
@@ -227,17 +211,15 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
                 blinkTimer.start();
             }
         };
-        if(SwingUtilities.isEventDispatchThread()) {
+        if (SwingUtilities.isEventDispatchThread()) {
             runnable.run();
-        }
-        else {
+        } else {
             try {
                 SwingUtilities.invokeAndWait(runnable);
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException(
-                        "Unexpected " + e.getClass().getSimpleName() + 
-                            " while creating SwingTerminal JFrame", e);
+                        "Unexpected " + e.getClass().getSimpleName() +
+                                " while creating SwingTerminal JFrame", e);
             }
         }
     }
@@ -263,25 +245,23 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
         else {
             try {
                 SwingUtilities.invokeAndWait(runnable);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException(
                         "Unexpected " + e.getClass().getSimpleName()
-                        + " while disposing SwingTerminal JFrame", e);
+                                + " while disposing SwingTerminal JFrame", e);
             }
         }
     }
 
     @Override
-    public void moveCursor(int x, int y)
-    {
-        if(x < 0)
+    public void moveCursor(int x, int y) {
+        if (x < 0)
             x = 0;
-        if(x >= size().getColumns())
+        if (x >= size().getColumns())
             x = size().getColumns() - 1;
-        if(y < 0)
+        if (y < 0)
             y = 0;
-        if(y >= size().getRows())
+        if (y >= size().getRows())
             y = size().getRows() - 1;
 
         textPosition.setColumn(x);
@@ -296,17 +276,20 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
     }
 
     @Override
-    public synchronized void putCharacter(char c)
-    {
-        characterMap[textPosition.getRow()][textPosition.getColumn()] =
-                new TerminalCharacter(c, currentForegroundColor, currentBackgroundColor, currentlyBold, currentlyBlinking, currentlyUnderlined);
-        if(textPosition.getColumn() == size().getColumns() - 1 &&
-                textPosition.getRow() == size().getRows() - 1)
-            moveCursor(0, textPosition.getRow());
-        if(textPosition.getColumn() == size().getColumns() - 1)
-            moveCursor(0, textPosition.getRow() + 1);
-        else
-            moveCursor(textPosition.getColumn() + 1, textPosition.getRow());
+    public synchronized void putCharacter(char c) {
+        try {
+            characterMap[textPosition.getRow()][textPosition.getColumn()] =
+                    new TerminalCharacter(c, currentForegroundColor, currentBackgroundColor, currentlyBold, currentlyBlinking, currentlyUnderlined);
+            if (textPosition.getColumn() == size().getColumns() - 1 &&
+                    textPosition.getRow() == size().getRows() - 1)
+                moveCursor(0, textPosition.getRow());
+            if (textPosition.getColumn() == size().getColumns() - 1)
+                moveCursor(0, textPosition.getRow() + 1);
+            else
+                moveCursor(textPosition.getColumn() + 1, textPosition.getRow());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -321,31 +304,29 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
         return size();
     }
 
-    private synchronized void resize(int newSizeColumns, int newSizeRows)
-    {
-        TerminalCharacter [][]newCharacterMap = new TerminalCharacter[newSizeRows][newSizeColumns];
-        for(int y = 0; y < newSizeRows; y++)
-            for(int x = 0; x < newSizeColumns; x++)
+    private synchronized void resize(int newSizeColumns, int newSizeRows) {
+        TerminalCharacter[][] newCharacterMap = new TerminalCharacter[newSizeRows][newSizeColumns];
+        for (int y = 0; y < newSizeRows; y++)
+            for (int x = 0; x < newSizeColumns; x++)
                 newCharacterMap[y][x] = new TerminalCharacter(
-                        ' ', 
-                        new CharacterANSIColor(Color.WHITE), 
-                        new CharacterANSIColor(Color.BLACK), 
-                        false, 
-                        false, 
+                        ' ',
+                        new CharacterANSIColor(Color.WHITE),
+                        new CharacterANSIColor(Color.BLACK),
+                        false,
+                        false,
                         false);
 
-        synchronized(resizeMutex) {
-            for(int y = 0; y < size().getRows() && y < newSizeRows; y++) {
-                for(int x = 0; x < size().getColumns() && x < newSizeColumns; x++) {
+        synchronized (resizeMutex) {
+            for (int y = 0; y < size().getRows() && y < newSizeRows; y++) {
+                for (int x = 0; x < size().getColumns() && x < newSizeColumns; x++) {
                     newCharacterMap[y][x] = this.characterMap[y][x];
                 }
             }
 
             this.characterMap = newCharacterMap;
             SwingUtilities.invokeLater(new Runnable() {
-                public void run()
-                {
-                    if(terminalFrame != null) {
+                public void run() {
+                    if (terminalFrame != null) {
                         terminalFrame.pack();
                     }
                 }
@@ -365,7 +346,7 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
     public void flush() {
         //Not needed
     }
-    
+
     /**
      * Changes the current color palett to a new one supplied
      * @param palette Palett to use
@@ -379,8 +360,7 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
     {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
-            public void run()
-            {
+            public void run() {
                 terminalRenderer.repaint();
             }
         });
@@ -388,7 +368,7 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
 
     /**
      * Returns the size of the terminal, which will always be same as calling
-     * getLastKnownSize(), but since that could be confusing when reading the 
+     * getLastKnownSize(), but since that could be confusing when reading the
      * code, I added this helper method.
      */
     private TerminalSize size()
@@ -396,197 +376,8 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
         return getLastKnownSize();
     }
 
-    private class KeyCapturer extends KeyAdapter
-    {
-        private Set<Character> typedIgnore = new HashSet<Character>(
-                Arrays.asList('\n', '\t', '\r', '\b', '\33'));
-
-        @Override
-        public void keyTyped(KeyEvent e)
-        {
-            char character = e.getKeyChar();
-            boolean altDown = (e.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
-            boolean ctrlDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
-            
-            if(!typedIgnore.contains(character)) {
-                if(ctrlDown) {
-                    //We need to re-adjust the character if ctrl is pressed, just like for the AnsiTerminal
-                    character = (char)('a' - 1 + character);
-                }
-                keyQueue.add(new Key(character, ctrlDown, altDown));
-            }
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e)
-        {
-            boolean altDown = (e.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
-            boolean ctrlDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
-            if(e.getKeyCode() == KeyEvent.VK_ENTER)
-                keyQueue.add(new Key(Key.Kind.Enter, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
-                keyQueue.add(new Key(Key.Kind.Escape, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
-                keyQueue.add(new Key(Key.Kind.Backspace, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_LEFT)
-                keyQueue.add(new Key(Key.Kind.ArrowLeft, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_RIGHT)
-                keyQueue.add(new Key(Key.Kind.ArrowRight, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_UP)
-                keyQueue.add(new Key(Key.Kind.ArrowUp, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_DOWN)
-                keyQueue.add(new Key(Key.Kind.ArrowDown, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_INSERT)
-                keyQueue.add(new Key(Key.Kind.Insert, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_DELETE)
-                keyQueue.add(new Key(Key.Kind.Delete, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_HOME)
-                keyQueue.add(new Key(Key.Kind.Home, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_END)
-                keyQueue.add(new Key(Key.Kind.End, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_PAGE_UP)
-                keyQueue.add(new Key(Key.Kind.PageUp, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
-                keyQueue.add(new Key(Key.Kind.PageDown, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F1)
-                keyQueue.add(new Key(Key.Kind.F1, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F2)
-                keyQueue.add(new Key(Key.Kind.F2, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F3)
-                keyQueue.add(new Key(Key.Kind.F3, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F4)
-                keyQueue.add(new Key(Key.Kind.F4, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F5)
-                keyQueue.add(new Key(Key.Kind.F5, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F6)
-                keyQueue.add(new Key(Key.Kind.F6, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F7)
-                keyQueue.add(new Key(Key.Kind.F7, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F8)
-                keyQueue.add(new Key(Key.Kind.F8, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F9)
-                keyQueue.add(new Key(Key.Kind.F9, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F10)
-                keyQueue.add(new Key(Key.Kind.F10, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F11)
-                keyQueue.add(new Key(Key.Kind.F11, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_F12)
-                keyQueue.add(new Key(Key.Kind.F12, ctrlDown, altDown));
-            else if(e.getKeyCode() == KeyEvent.VK_TAB) {
-                if(e.isShiftDown())
-                    keyQueue.add(new Key(Key.Kind.ReverseTab, ctrlDown, altDown));
-                else
-                    keyQueue.add(new Key(Key.Kind.Tab, ctrlDown, altDown));
-            }
-            else {
-                //keyTyped doesn't catch this scenario (for whatever reason...) so we have to do it here
-
-                if(altDown && ctrlDown && e.getKeyCode() >= 'A' && e.getKeyCode() <= 'Z') {
-                    char asLowerCase = Character.toLowerCase((char)e.getKeyCode());
-                    keyQueue.add(new Key(asLowerCase, true, true));
-                }
-            }
-        }
-    }
-
-    private class FrameResizeListener extends ComponentAdapter
-    {
-        private int lastWidth = -1;
-        private int lastHeight = -1;
-        
-        @Override
-        public void componentResized(ComponentEvent e)
-        {
-            if(e.getComponent() == null || e.getComponent() instanceof JFrame == false)
-                return;
-            
-            JFrame frame = (JFrame)e.getComponent();
-            Container contentPane = frame.getContentPane();
-            int newWidth = contentPane.getWidth();
-            int newHeight = contentPane.getHeight();
-
-            FontMetrics fontMetrics = frame.getGraphics().getFontMetrics(appearance.getNormalTextFont());
-            int consoleWidth = newWidth / fontMetrics.charWidth(' ');
-            int consoleHeight = newHeight / fontMetrics.getHeight();
-
-            if(consoleWidth == lastWidth && consoleHeight == lastHeight)
-                return;
-
-            lastWidth = consoleWidth;
-            lastHeight = consoleHeight;
-            
-            resize(consoleWidth, consoleHeight);
-        }
-    }
-
-    private class TerminalRenderer extends JComponent
-    {
-        public TerminalRenderer()
-        {
-        }
-
-        @Override
-        public Dimension getPreferredSize()
-        {
-            FontMetrics fontMetrics = getGraphics().getFontMetrics(appearance.getNormalTextFont());
-            final int screenWidth = SwingTerminal.this.size().getColumns() * fontMetrics.charWidth(' ');
-            final int screenHeight = SwingTerminal.this.size().getRows() * fontMetrics.getHeight();
-            return new Dimension(screenWidth, screenHeight);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g)
-        {
-            final Graphics2D graphics2D = (Graphics2D)g.create();
-            graphics2D.setFont(appearance.getNormalTextFont());
-            graphics2D.setColor(java.awt.Color.BLACK);
-            graphics2D.fillRect(0, 0, getWidth(), getHeight());
-            final FontMetrics fontMetrics = getGraphics().getFontMetrics(appearance.getNormalTextFont());
-            final int charWidth = fontMetrics.charWidth(' ');
-            final int charHeight = fontMetrics.getHeight();
-            
-            for(int row = 0; row < SwingTerminal.this.size().getRows(); row++) {
-                for(int col = 0; col < SwingTerminal.this.size().getColumns(); col++) {
-                    boolean needToResetFont = false;
-                    TerminalCharacter character = characterMap[row][col];
-                    if(cursorVisible && row == textPosition.getRow() && col == textPosition.getColumn())
-                        graphics2D.setColor(character.getForegroundAsAWTColor(appearance.useBrightColorsOnBold()));
-                    else
-                        graphics2D.setColor(character.getBackgroundAsAWTColor());
-                    graphics2D.fillRect(col * charWidth, row * charHeight, charWidth, charHeight);
-                    if((cursorVisible && row == textPosition.getRow() && col == textPosition.getColumn()) ||
-                            (character.isBlinking() && !blinkVisible))
-                        graphics2D.setColor(character.getBackgroundAsAWTColor());
-                    else
-                        graphics2D.setColor(character.getForegroundAsAWTColor(appearance.useBrightColorsOnBold()));
-                        
-                    if(character.isBold()) {
-                        graphics2D.setFont(appearance.getBoldTextFont());
-                        needToResetFont = true;
-                    }
-                    
-                    if(character.isUnderlined())
-                        graphics2D.drawLine(
-                                col * charWidth, ((row + 1) * charHeight) - 1, 
-                                (col+1) * charWidth, ((row + 1) * charHeight) - 1);
-                    
-                    if(!graphics2D.getFont().canDisplay(character.character)) {
-                        graphics2D.setFont(appearance.getCJKFont());
-                        needToResetFont = true;
-                    }
-                    
-                    graphics2D.drawString(character.toString(), col * charWidth, ((row + 1) * charHeight) - fontMetrics.getDescent());
-                    
-                    if(needToResetFont)
-                        graphics2D.setFont(appearance.getNormalTextFont());   //Restore the original font
-                }
-            }
-            graphics2D.dispose();
-        }
-    }
-
     private static class TerminalCharacter {
-        
+
         private final char character;
         private final TerminalCharacterColor foreground;
         private final TerminalCharacterColor background;
@@ -595,11 +386,11 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
         private final boolean underlined;
 
         TerminalCharacter(
-                char character, 
-                TerminalCharacterColor foreground, 
-                TerminalCharacterColor background, 
-                boolean bold, 
-                boolean blinking, 
+                char character,
+                TerminalCharacterColor foreground,
+                TerminalCharacterColor background,
+                boolean bold,
+                boolean blinking,
                 boolean underlined) {
             this.character = character;
             this.foreground = foreground;
@@ -620,7 +411,7 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
         public boolean isUnderlined() {
             return underlined;
         }
-        
+
         private java.awt.Color getForegroundAsAWTColor(boolean useBrightOnBold) {
             return foreground.getColor(isBold() && useBrightOnBold, true);
         }
@@ -634,9 +425,214 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
             return Character.toString(character);
         }
     }
-    
+
     private static abstract class TerminalCharacterColor {
         public abstract java.awt.Color getColor(boolean brightHint, boolean foregroundHint);
+    }
+
+    private static class Character24bitColor extends TerminalCharacterColor {
+
+        private final java.awt.Color c;
+
+        Character24bitColor(java.awt.Color c) {
+            this.c = c;
+        }
+
+        @Override
+        public java.awt.Color getColor(boolean brightHint, boolean foregroundHint) {
+            return c;
+        }
+    }
+
+    private class BlinkAction implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            blinkVisible = !blinkVisible;
+            terminalRenderer.repaint();
+        }
+    }
+
+    private class KeyCapturer extends KeyAdapter
+    {
+        private Set<Character> typedIgnore = new HashSet<Character>(
+                Arrays.asList('\n', '\t', '\r', '\b', '\33'));
+
+        @Override
+        public void keyTyped(KeyEvent e)
+        {
+            char character = e.getKeyChar();
+            boolean altDown = (e.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
+            boolean ctrlDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+
+            if (!typedIgnore.contains(character)) {
+                if (ctrlDown) {
+                    //We need to re-adjust the character if ctrl is pressed, just like for the AnsiTerminal
+                    character = (char) ('a' - 1 + character);
+                }
+                keyQueue.add(new Key(character, ctrlDown, altDown));
+            }
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e)
+        {
+            boolean altDown = (e.getModifiersEx() & InputEvent.ALT_DOWN_MASK) != 0;
+            boolean ctrlDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+            if (e.getKeyCode() == KeyEvent.VK_ENTER)
+                keyQueue.add(new Key(Key.Kind.Enter, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                keyQueue.add(new Key(Key.Kind.Escape, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_BACK_SPACE)
+                keyQueue.add(new Key(Key.Kind.Backspace, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_LEFT)
+                keyQueue.add(new Key(Key.Kind.ArrowLeft, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_RIGHT)
+                keyQueue.add(new Key(Key.Kind.ArrowRight, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_UP)
+                keyQueue.add(new Key(Key.Kind.ArrowUp, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_DOWN)
+                keyQueue.add(new Key(Key.Kind.ArrowDown, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_INSERT)
+                keyQueue.add(new Key(Key.Kind.Insert, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                keyQueue.add(new Key(Key.Kind.Delete, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_HOME)
+                keyQueue.add(new Key(Key.Kind.Home, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_END)
+                keyQueue.add(new Key(Key.Kind.End, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_PAGE_UP)
+                keyQueue.add(new Key(Key.Kind.PageUp, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+                keyQueue.add(new Key(Key.Kind.PageDown, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F1)
+                keyQueue.add(new Key(Key.Kind.F1, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F2)
+                keyQueue.add(new Key(Key.Kind.F2, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F3)
+                keyQueue.add(new Key(Key.Kind.F3, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F4)
+                keyQueue.add(new Key(Key.Kind.F4, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F5)
+                keyQueue.add(new Key(Key.Kind.F5, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F6)
+                keyQueue.add(new Key(Key.Kind.F6, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F7)
+                keyQueue.add(new Key(Key.Kind.F7, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F8)
+                keyQueue.add(new Key(Key.Kind.F8, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F9)
+                keyQueue.add(new Key(Key.Kind.F9, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F10)
+                keyQueue.add(new Key(Key.Kind.F10, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F11)
+                keyQueue.add(new Key(Key.Kind.F11, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_F12)
+                keyQueue.add(new Key(Key.Kind.F12, ctrlDown, altDown));
+            else if (e.getKeyCode() == KeyEvent.VK_TAB) {
+                if (e.isShiftDown())
+                    keyQueue.add(new Key(Key.Kind.ReverseTab, ctrlDown, altDown));
+                else
+                    keyQueue.add(new Key(Key.Kind.Tab, ctrlDown, altDown));
+            } else {
+                //keyTyped doesn't catch this scenario (for whatever reason...) so we have to do it here
+
+                if (altDown && ctrlDown && e.getKeyCode() >= 'A' && e.getKeyCode() <= 'Z') {
+                    char asLowerCase = Character.toLowerCase((char) e.getKeyCode());
+                    keyQueue.add(new Key(asLowerCase, true, true));
+                }
+            }
+        }
+    }
+
+    private class FrameResizeListener extends ComponentAdapter {
+        private int lastWidth = -1;
+        private int lastHeight = -1;
+
+        @Override
+        public void componentResized(ComponentEvent e) {
+            if (e.getComponent() == null || e.getComponent() instanceof JFrame == false)
+                return;
+
+            JFrame frame = (JFrame) e.getComponent();
+            Container contentPane = frame.getContentPane();
+            int newWidth = contentPane.getWidth();
+            int newHeight = contentPane.getHeight();
+
+            FontMetrics fontMetrics = frame.getGraphics().getFontMetrics(appearance.getNormalTextFont());
+            int consoleWidth = newWidth / fontMetrics.charWidth(' ');
+            int consoleHeight = newHeight / fontMetrics.getHeight();
+
+            if (consoleWidth == lastWidth && consoleHeight == lastHeight)
+                return;
+
+            lastWidth = consoleWidth;
+            lastHeight = consoleHeight;
+
+            resize(consoleWidth, consoleHeight);
+        }
+    }
+
+    private class TerminalRenderer extends JComponent {
+        public TerminalRenderer() {
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            FontMetrics fontMetrics = getGraphics().getFontMetrics(appearance.getNormalTextFont());
+            final int screenWidth = SwingTerminal.this.size().getColumns() * fontMetrics.charWidth(' ');
+            final int screenHeight = SwingTerminal.this.size().getRows() * fontMetrics.getHeight();
+            return new Dimension(screenWidth, screenHeight);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            final Graphics2D graphics2D = (Graphics2D) g.create();
+            graphics2D.setFont(appearance.getNormalTextFont());
+            graphics2D.setColor(java.awt.Color.BLACK);
+            graphics2D.fillRect(0, 0, getWidth(), getHeight());
+            final FontMetrics fontMetrics = getGraphics().getFontMetrics(appearance.getNormalTextFont());
+            final int charWidth = fontMetrics.charWidth(' ');
+            final int charHeight = fontMetrics.getHeight();
+
+            for (int row = 0; row < SwingTerminal.this.size().getRows(); row++) {
+                for (int col = 0; col < SwingTerminal.this.size().getColumns(); col++) {
+                    boolean needToResetFont = false;
+                    TerminalCharacter character = characterMap[row][col];
+                    if (cursorVisible && row == textPosition.getRow() && col == textPosition.getColumn())
+                        graphics2D.setColor(character.getForegroundAsAWTColor(appearance.useBrightColorsOnBold()));
+                    else
+                        graphics2D.setColor(character.getBackgroundAsAWTColor());
+                    graphics2D.fillRect(col * charWidth, row * charHeight, charWidth, charHeight);
+                    if ((cursorVisible && row == textPosition.getRow() && col == textPosition.getColumn()) ||
+                            (character.isBlinking() && !blinkVisible))
+                        graphics2D.setColor(character.getBackgroundAsAWTColor());
+                    else
+                        graphics2D.setColor(character.getForegroundAsAWTColor(appearance.useBrightColorsOnBold()));
+
+                    if (character.isBold()) {
+                        graphics2D.setFont(appearance.getBoldTextFont());
+                        needToResetFont = true;
+                    }
+
+                    if (character.isUnderlined())
+                        graphics2D.drawLine(
+                                col * charWidth, ((row + 1) * charHeight) - 1,
+                                (col + 1) * charWidth, ((row + 1) * charHeight) - 1);
+
+                    if (!graphics2D.getFont().canDisplay(character.character)) {
+                        graphics2D.setFont(appearance.getCJKFont());
+                        needToResetFont = true;
+                    }
+
+                    graphics2D.drawString(character.toString(), col * charWidth, ((row + 1) * charHeight) - fontMetrics.getDescent());
+
+                    if (needToResetFont)
+                        graphics2D.setFont(appearance.getNormalTextFont());   //Restore the original font
+                }
+            }
+            graphics2D.dispose();
+        }
     }
     
     private class CharacterANSIColor extends TerminalCharacterColor {
@@ -646,7 +642,7 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
         CharacterANSIColor(Color color) {
             this.color = color;
         }
-        
+
         @Override
         public java.awt.Color getColor(boolean brightHint, boolean foregroundHint) {
             switch(color) {
@@ -710,9 +706,9 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
                         return appearance.getColorPalette().getNormalYellow();
             }
             return java.awt.Color.PINK;
-        }        
+        }
     }
-    
+
     private class CharacterIndexedColor extends TerminalCharacterColor {
 
         private final int index;
@@ -720,24 +716,10 @@ public class SwingTerminal extends AbstractTerminal implements InputProvider
         CharacterIndexedColor(int index) {
             this.index = index;
         }
-        
+
         @Override
         public java.awt.Color getColor(boolean brightHint, boolean foregroundHint) {
             return XTerm8bitIndexedColorUtils.getAWTColor(index, appearance.getColorPalette());
-        }        
-    }
-    
-    private static class Character24bitColor extends TerminalCharacterColor {
-        
-        private final java.awt.Color c;
-
-        Character24bitColor(java.awt.Color c) {
-            this.c = c;
-        }
-        
-        @Override
-        public java.awt.Color getColor(boolean brightHint, boolean foregroundHint) {
-            return c;
         }
     }
 }

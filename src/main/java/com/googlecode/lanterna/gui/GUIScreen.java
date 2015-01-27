@@ -194,12 +194,17 @@ public class GUIScreen
     }
 
     protected boolean update() {
-        if(needsRefresh || screen.resizePending()) {
-            repaint();
-            needsRefresh = false;
-            return true;
+        try {
+            if (needsRefresh || screen.resizePending()) {
+                repaint();
+                needsRefresh = false;
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     protected Queue<Action> getActionsToRunInEventThreadQueue() {

@@ -29,6 +29,7 @@ import com.googlecode.lanterna.gui.listener.WindowListener;
 import com.googlecode.lanterna.input.Key;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,8 +44,8 @@ public class Window
 {
     private final List<WindowListener> windowListeners;
     private final List<ComponentInvalidatorAlert> invalidatorAlerts;
-    private GUIScreen owner;
     private final WindowContentPane contentPane;
+    private GUIScreen owner;
     private Interactable currentlyInFocus;
     private TerminalSize windowSizeOverride;
     private boolean soloWindow;
@@ -133,7 +134,11 @@ public class Window
     {
         graphics.applyTheme(graphics.getTheme().getDefinition(Category.DIALOG_AREA));
         graphics.fillRectangle(' ', new TerminalPosition(0, 0), new TerminalSize(graphics.getWidth(), graphics.getHeight()));
-        contentPane.repaint(graphics);
+        try {
+            contentPane.repaint(graphics);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void invalidate()

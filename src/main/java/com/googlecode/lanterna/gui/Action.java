@@ -29,5 +29,6 @@ import com.googlecode.lanterna.input.Key;
  */
 public interface Action {
     public void doAction(Key key);
+
 }
 

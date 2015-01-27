@@ -20,8 +20,10 @@
 package com.googlecode.lanterna.gui.component;
 
 import com.googlecode.lanterna.gui.Action;
+import com.googlecode.lanterna.gui.TextGraphics;
 import com.googlecode.lanterna.gui.Theme;
 import com.googlecode.lanterna.input.Key;
+import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 import com.googlecode.lanterna.terminal.TerminalSize;
 
@@ -40,6 +42,42 @@ public class ActionListBox extends AbstractListBox {
     }
 
     /**
+     * Draws an item in the ListBox at specific coordinates. If you override this method,
+     * please note that the x and y positions have been pre-calculated for you and you should use
+     * the values supplied instead of trying to figure out the position on your own based on the
+     * index of the item.
+     *
+     * @param graphics TextGraphics object to use when drawing the item
+     * @param x        X-coordinate on the terminal of the item, pre-adjusted for scrolling
+     * @param y        Y-coordinate on the terminal of the item, pre-adjusted for scrolling
+     * @param index    Index of the item that is to be drawn
+     */
+    @Override
+    protected void printItem(TextGraphics graphics, int x, int y, int index) {
+        //super.printItem(graphics, x, y, index);
+
+        //fill all row
+        graphics.fillRectangle(' ', new TerminalPosition(x, y), graphics.getSize());
+
+        ColorType colorType = ((Item) getItemAt(index)).getItemColorType();
+        if (colorType != null) {
+            Terminal.Color color = colorType.color;
+
+            //если текст не null и не пустой и поместится, то пишем текст
+            if (colorType.itemType != null && colorType.itemType.length() > 0 && graphics.getWidth() > colorType.itemType.length()) {
+                graphics.drawString(graphics.getWidth() - colorType.itemType.length(), y, colorType.itemType);
+            }
+            //graphics.setBackgroundColor(color);
+        }
+
+
+        String asText = createItemString(index);
+        if (asText.length() > graphics.getWidth())
+            asText = asText.substring(0, graphics.getWidth());
+        graphics.drawString(x, y, asText);
+    }
+
+    /**
      * Adds an action to the list, using toString() of the action as a label
      * @param action Action to be performed when the user presses enter key
      */
@@ -47,12 +85,12 @@ public class ActionListBox extends AbstractListBox {
         addAction(action.toString(), action);
     }
 
-    /**
-     * Adds an action to the list, with a specified label
-     * @param label Label to be displayed, representing the action
-     * @param action Action to be performed when the user presses enter key
-     */
+
     public void addAction(final String label, final Action action) {
+        addAction(label, action, null);
+    }
+
+    public void addAction(final String label, final Action action, final ColorType itemColorType) {
         super.addItem(new Item() {
             @Override
             public String getTitle() {
@@ -62,6 +100,11 @@ public class ActionListBox extends AbstractListBox {
             @Override
             public void doAction(Key key) {
                 action.doAction(key);
+            }
+
+            @Override
+            public ColorType getItemColorType() {
+                return itemColorType;
             }
         });
     }
@@ -96,10 +139,12 @@ public class ActionListBox extends AbstractListBox {
     protected Theme.Definition getSelectedListItemThemeDefinition(Theme theme) {
         return theme.getDefinition(Theme.Category.TEXTBOX_FOCUSED);
     }
-    
-    private static interface Item {
-        public String getTitle();
 
+    public static interface Item {
+        public String getTitle();
         public void doAction(Key key);
+
+        //for subitems compatible
+        public ColorType getItemColorType();
     }
 }
