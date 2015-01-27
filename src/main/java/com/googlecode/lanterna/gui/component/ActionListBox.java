@@ -56,18 +56,24 @@ public class ActionListBox extends AbstractListBox {
     protected void printItem(TextGraphics graphics, int x, int y, int index) {
         //super.printItem(graphics, x, y, index);
 
-        //fill all row
-        graphics.fillRectangle(' ', new TerminalPosition(x, y), graphics.getSize());
+
 
         ColorType colorType = ((Item) getItemAt(index)).getItemColorType();
         if (colorType != null) {
             Terminal.Color color = colorType.color;
 
-            //если текст не null и не пустой и поместится, то пишем текст
+            //если текст не null и не пустой и поместится, то пишем текст и заливаем указанным цветом
             if (colorType.itemType != null && colorType.itemType.length() > 0 && graphics.getWidth() > colorType.itemType.length()) {
+                graphics.setBackgroundColor(color);
+
+                //fill all row
+                graphics.fillRectangle(' ', new TerminalPosition(x, y), graphics.getSize());
                 graphics.drawString(graphics.getWidth() - colorType.itemType.length(), y, colorType.itemType);
             }
-            //graphics.setBackgroundColor(color);
+
+        } else {
+            //fill all row
+            graphics.fillRectangle(' ', new TerminalPosition(x, y), graphics.getSize());
         }
 
 
@@ -75,6 +81,7 @@ public class ActionListBox extends AbstractListBox {
         if (asText.length() > graphics.getWidth())
             asText = asText.substring(0, graphics.getWidth());
         graphics.drawString(x, y, asText);
+
     }
 
     /**
